@@ -14,19 +14,21 @@ interface UIServerConfig {
   InboundAddress: string;
   // 1-65535
   InboundPort: number;
+  // [vless|vmess] Unsupport: tunnel/http/shadowsocks/socks/trojan/wireguard
+  // https://xtls.github.io/development/protocols/vless.html
+  // https://xtls.github.io/development/protocols/vmess.html
+  InboundProtocol: string;
   // Default: false
   sniffingEnabled: boolean;
-  // [vmess|vless] Unsupport:dokodemo-door/http/shadowsocks/socks/trojan/wireguard
-  InboundProtocol: string;
   InboundUUID: string;
-  // tcp/kcp/ws/http/quic/grpc/httpupgrade/xhttp => TCP/mKCP/WebSocket(deprecated)/ HTTP/2 /QUIC/gRPC/HTTPUpragde/XHTTP
+  // https://xtls.github.io/config/transport.html
   // XHTTP: https://github.com/XTLS/Xray-core/discussions/4113
-  InboundStreamType: 'ws' | 'xhttp' | 'httpupgrade' | 'tcp' | 'kcp' | 'http' | 'quic' | 'grpc';
+  InboundStreamType: 'raw' | 'xhttp' | 'kcp' | 'grpc' | 'ws' | 'httpupgrade' | 'hysteria';
   // vmess: auto/aes-128-gcm/chacha20-poly1305/none; vless: none
-  // Default: vmess: auto; vless: none
-  InboundEncryption?: string;
-  // Unknown Parameter,Default: 0
-  InboundAlterId?: number;
+  // Default: none
+  // VLESS Encryption: https://github.com/XTLS/Xray-core/pull/5067
+  InboundDecryption?: string;
+  InboundFlow?: '' | 'xtls-rprx-vision';
   // Default: none
   InboundStreamSecurity: 'none' | 'tls' | 'reality';
   // ws/httpupgrade/xhttp path
@@ -93,18 +95,23 @@ export default class CoreConfigHandler {
     } else {
       config.inbounds = [
         {
-          port: UIServerConfig.InboundPort,
           listen: UIServerConfig.InboundAddress,
+          port: UIServerConfig.InboundPort,
           protocol: UIServerConfig.InboundProtocol,
+          sniffing: {
+            enabled: UIServerConfig.sniffingEnabled,
+            destOverride: ['http', 'tls', 'quic'],
+            routeOnly: true,
+          },
           settings: {
             clients: [
               {
                 id: UIServerConfig.InboundUUID,
-                level: 0,
                 email: 'user@exmaple.com',
+                flow: UIServerConfig.InboundFlow,
               },
             ],
-            decryption: 'none',
+            decryption: UIServerConfig.InboundDecryption || 'none',
           },
           streamSettings: {
             network: UIServerConfig.InboundStreamType,
@@ -112,11 +119,6 @@ export default class CoreConfigHandler {
             [UIServerConfig.InboundStreamType + 'Settings']: {
               path: UIServerConfig.InboundPath,
             },
-          },
-          sniffing: {
-            enabled: UIServerConfig.sniffingEnabled,
-            destOverride: ['http', 'tls', 'quic'],
-            metadataOnly: false,
           },
           tag: 'main',
         },

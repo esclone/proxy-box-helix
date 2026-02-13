@@ -17,25 +17,10 @@
 
 ## 📦 运行环境
 
-- Node.js >= 18（需要内置 `fetch`）
+- Node.js >= 18
 - 支持系统：
   - Linux
   - Windows
-
----
-
-## 📁 项目结构
-
-```text
-.
-├─ index.ts              # 主入口
-├─ utils/
-│  ├─ coreConfigHandler  # core 配置生成
-│  ├─ download.ts        # core / cloudflared 下载逻辑
-├─ types.ts              # 类型定义
-├─ config.json           # 本地配置文件（可选）
-└─ README.md
-```
 
 ---
 
@@ -50,31 +35,21 @@
 
 ```json
 {
-  "port": 3000,
   "path": "/api",
   "network": "ws",
-  "uuid": "不填时自动生成",
+  "uuid": "api",
 
-  "cloudflared": {
-    "use": true,
-    "protocol": "quic",
-    "region": "us",
-    "token": ""
-  },
+  "warp_add_ipv6": false,
+  "warp_ipv6": "",
+  "warp_secretKey": "",
+  "warp_reserved": "",
 
-  "warp": {
-    "key": "",
-    "ipv4": "172.16.0.2",
-    "ipv6": "",
-    "add4": false,
-    "add6": false
-  },
+  "cloudflared_enabled": false,
+  "cloudflared_access_token": "",
 
-  "tls": {
-    "use": false,
-    "key": "BASE64_KEY",
-    "cert": "BASE64_CERT"
-  }
+  "tls_enabled": false,
+  "tls_key": "BASE64_KEY",
+  "tls_cert": "BASE64_CERT"
 }
 ```
 

@@ -4,16 +4,18 @@ import os from 'os';
 import path from 'path';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
-import { downloadCore, downloadCloudflared } from './utils/download';
+import { downloadCore, downloadCloudflared } from './features/download';
 import { configType } from './types';
-import { getConfig } from './utils/config';
-import { startCore, startCloudflared } from './utils/start';
-import { listenPort } from './utils/listenPort';
+import { getConfig } from './features/config';
+import { startCore, startCloudflared } from './features/start';
+import { listenPort } from './features/listenPort';
 
 dotenv.config();
 const app = express();
 app.disable('x-powered-by');
 const config: configType = getConfig();
+
+console.log(config);
 
 async function proxyRemotePage(res, url: string, contentType = 'text/html; charset=utf-8') {
   try {
@@ -71,7 +73,7 @@ app.use(async (req, res, next) => {
 start();
 async function start(noListenPort = false) {
   console.log('[OS Info]', `${os.platform()} ${os.arch()}`);
-  if (config.use_cloudflared) {
+  if (config.cloudflared_enabled) {
     if (!fs.existsSync(path.resolve(process.cwd(), config.cloudflared_path))) {
       const foo = await downloadCloudflared(config.cloudflared_path);
       if (foo) {

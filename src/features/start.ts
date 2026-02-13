@@ -8,21 +8,21 @@ import { configType } from '../types';
 export async function startCore(config: configType): Promise<{ success: boolean; pid?: number; error?: any }> {
   // Generate config for core
   let extra = {};
-  if (config.warp_secretKey && config.warp_ipv6 && (config.add_ipv4 || config.add_ipv6)) {
+  if ((config.warp_add_ipv4 || config.warp_add_ipv6) && config.warp_secretKey && config.warp_ipv6) {
     let domainStrategy = 'IPIfNonMatch';
     let extra_iprules: any = [
       {
         type: 'field',
         ip: ['0.0.0.0/0'],
-        outboundTag: config.add_ipv4 ? 'wireguard' : 'direct',
+        outboundTag: config.warp_add_ipv4 ? 'wireguard' : 'direct',
       },
       {
         type: 'field',
         ip: ['::/0'],
-        outboundTag: config.add_ipv6 ? 'wireguard' : 'direct',
+        outboundTag: config.warp_add_ipv6 ? 'wireguard' : 'direct',
       },
     ];
-    if (config.add_ipv4 && config.add_ipv6) {
+    if (config.warp_add_ipv4 && config.warp_add_ipv6) {
       domainStrategy = 'AsIs';
       extra_iprules = [
         {
@@ -78,13 +78,13 @@ export async function startCore(config: configType): Promise<{ success: boolean;
   }
 
   let config_obj: any = new CoreConfigHandler().generateServerConfig({
-    InboundPort: config.middle_port,
     InboundAddress: '127.0.0.1',
+    InboundPort: config.middle_port,
+    InboundProtocol: config.protocol,
     sniffingEnabled: false,
-    InboundProtocol: Buffer.from(config.protocol, 'base64').toString(),
     InboundUUID: config.uuid,
     InboundStreamType: config.network as any,
-    InboundEncryption: 'auto',
+    InboundDecryption: config.decryption,
     InboundStreamSecurity: 'none',
     InboundPath: config.path,
     ...extra,
@@ -120,7 +120,7 @@ export async function startCore(config: configType): Promise<{ success: boolean;
   stdInStream.pipe(processC.stdin);
   return new Promise(resolve => {
     processC.stdout.on('data', data => {
-      // console.log(data.toString().trim());
+      if (config.debug) console.log(data.toString().trim());
       if (/\[Warning\] core: .* started/.test(data)) {
         resolve({ success: true, pid: processC.pid });
       }
@@ -131,7 +131,7 @@ export async function startCore(config: configType): Promise<{ success: boolean;
   });
 }
 
-export async function startCloudflared(config: configType): Promise<{ success: boolean; pid?: number; error?: any }>  {
+export async function startCloudflared(config: configType): Promise<{ success: boolean; pid?: number; error?: any }> {
   await (_ => {
     return new Promise(async resolve => {
       if (os.platform() != 'linux') {
@@ -183,7 +183,7 @@ export async function startCloudflared(config: configType): Promise<{ success: b
           `Domain: ${data.toString().match(/(?<=https:\/\/).*[a-z]+cloudflare.com/)[0]}`,
         );
       } else {
-        // console.log(data.toString().trim());
+        if (config.debug) console.log(data.toString().trim());
       }
       resolve({ success: true, pid: processC.pid });
     });

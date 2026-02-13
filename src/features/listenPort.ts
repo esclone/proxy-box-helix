@@ -5,7 +5,7 @@ import { configType } from '../types';
 
 export function listenPort(config: configType, expressApp: express.Express) {
   let serverProxy: undefined | http.Server | https.Server;
-  if (config.use_tls) {
+  if (config.tls_enabled) {
     console.log('[Main]', `Https Enabled`);
     if (config.tls_cert && config.tls_key) {
       const options = {
