@@ -73,8 +73,10 @@ app.get('/generate_200{*any}', (req, res) => {
           if (!isNaN(pid_cloudflared)) process.kill(pid_cloudflared);
           pid_core = NaN;
           pid_cloudflared = NaN;
-          config.disable_exit_protect = ori_disable_exit_protect;
           start(true);
+          setTimeout(() => {
+            config.disable_exit_protect = ori_disable_exit_protect;
+          }, 500);
           break;
         }
         case 'process_update': {
@@ -86,8 +88,10 @@ app.get('/generate_200{*any}', (req, res) => {
           pid_cloudflared = NaN;
           fs.rmSync(path.resolve(process.cwd(), config.core_path));
           fs.rmSync(path.resolve(process.cwd(), config.cloudflared_path));
-          config.disable_exit_protect = ori_disable_exit_protect;
           start(true);
+          setTimeout(() => {
+            config.disable_exit_protect = ori_disable_exit_protect;
+          }, 500);
           break;
         }
         case 'push_tasks':
@@ -143,6 +147,7 @@ async function start(noListenPort = false) {
     console.log('[Initialization]', 'Core Already Exist');
   }
   const start_return = await startCore(config);
+
   if (start_return.success) {
     pid_core = start_return.pid;
     console.log('[Main]', 'Core Start Success');
