@@ -4,7 +4,7 @@ import express from 'express';
 import { configType } from '../types';
 
 export function listenPort(config: configType, expressApp: express.Express) {
-  let serverProxy: undefined | http.Server | https.Server;
+  let serverProxy: http.Server | https.Server;
   if (config.tls_enabled) {
     console.log('[Main]', `Https Enabled`);
     if (config.tls_cert && config.tls_key) {
@@ -25,8 +25,8 @@ export function listenPort(config: configType, expressApp: express.Express) {
     });
   }
   try_connect(serverProxy);
-  serverProxy.on('error', e => {
-    if (e.code === 'EADDRINUSE') {
+  serverProxy.on('error', (error: Error) => {
+    if (error.message.includes('EADDRINUSE')) {
       console.error('[Main]', 'Listening Port Failed: Address in use, retrying...');
       setTimeout(() => {
         serverProxy.close();

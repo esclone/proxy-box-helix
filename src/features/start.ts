@@ -87,6 +87,7 @@ export async function startCore(config: configType): Promise<{ success: boolean;
     InboundDecryption: config.decryption,
     InboundStreamSecurity: 'none',
     InboundPath: config.path,
+    InboundXHTTPExtra: config.xhttp_extra,
     ...extra,
   });
   config_obj = JSON.stringify(config_obj, null, '');

@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "nodenext",
+    "module": "preserve",
     "lib": ["ES2020"],
     "strict": false,
     "esModuleInterop": true,
     "outDir": "dist",
     "rootDir": "src",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true
   },
   "include": ["src"]

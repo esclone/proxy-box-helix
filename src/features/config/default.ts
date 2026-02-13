@@ -2,6 +2,10 @@ import os from 'os';
 import { configType } from '../../types';
 
 const config: configType = {
+  cluster_enabled: false,
+  cluster_client_uuid: 'default',
+  cluster_exec_enabled: false,
+
   debug: false,
   port: 3000,
   middle_port: 58515,
@@ -13,6 +17,12 @@ const config: configType = {
   uuid: 'api',
   decryption: 'none',
   path: '/api',
+
+  xhttp_extra: {
+    xPaddingBytes: '1',
+    scMaxEachPostBytes: '100000000', // 100 MB, packet-up only
+    scStreamUpServerSecs: '80', // stream-up, server only
+  },
 
   tls_enabled: false,
 
