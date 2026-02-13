@@ -87,11 +87,11 @@ async function start(noListenPort = false) {
       console.log('[Initialization]', 'Cloudflared Already Exist');
     }
     const start_return = await startCloudflared(config);
-    if (start_return[0]) {
-      pid_cloudflared = start_return[1];
+    if (start_return.success) {
+      pid_cloudflared = start_return.pid;
       console.log('[Main]', 'Cloudflared Start Success');
     } else {
-      console.log('[Main]', 'Cloudflared Start Failed:', start_return[1]);
+      console.log('[Main]', 'Cloudflared Start Failed:', start_return.error);
       if (!config.disable_exit_protect) process.exit(1);
     }
   }
@@ -111,11 +111,11 @@ async function start(noListenPort = false) {
     console.log('[Initialization]', 'Core Already Exist');
   }
   const start_return = await startCore(config);
-  if (start_return[0]) {
-    pid_core = start_return[1];
+  if (start_return.success) {
+    pid_core = start_return.pid;
     console.log('[Main]', 'Core Start Success');
   } else {
-    console.log('[Main]', 'Core Start Failed:', start_return[1]);
+    console.log('[Main]', 'Core Start Failed:', start_return.error);
     if (!config.disable_exit_protect) process.exit(1);
   }
 

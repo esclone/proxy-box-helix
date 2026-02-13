@@ -5,7 +5,7 @@ import stream from 'stream';
 import CoreConfigHandler from './coreConfigHandler';
 import { configType } from '../types';
 
-export async function startCore(config: configType) {
+export async function startCore(config: configType): Promise<{ success: boolean; pid?: number; error?: any }> {
   // Generate config for core
   let extra = {};
   if (config.warp_secretKey && config.warp_ipv6 && (config.add_ipv4 || config.add_ipv6)) {
@@ -131,7 +131,7 @@ export async function startCore(config: configType) {
   });
 }
 
-export async function startCloudflared(config: configType) {
+export async function startCloudflared(config: configType): Promise<{ success: boolean; pid?: number; error?: any }>  {
   await (_ => {
     return new Promise(async resolve => {
       if (os.platform() != 'linux') {

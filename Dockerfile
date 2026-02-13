@@ -1,10 +1,24 @@
-FROM node:lts
-WORKDIR /usr/app
-COPY package*.json ./
-RUN npm -g uninstall yarn
-RUN corepack enable
-# RUN corepack install
-RUN yarn install
+# ========= build stage =========
+FROM node:lts AS builder
+
+WORKDIR /app
+
 COPY . .
+
+RUN corepack enable
+RUN yarn install
+RUN yarn run build
+
+
+# ========= runtime stage =========
+FROM node:lts-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
 EXPOSE 3000
-CMD yarn start
+
+CMD ["node", "dist/index.js"]
