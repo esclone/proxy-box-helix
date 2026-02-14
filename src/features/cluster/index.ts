@@ -42,9 +42,12 @@ export function connectCluster(config: configType, msgHandler?: (ws: WebSocket, 
 
   let ws: WebSocket | null = null;
   let timer: NodeJS.Timeout | null = null;
+  let timerInterval: NodeJS.Timeout | null = null;
   let closedByUser = false;
 
   const connect = () => {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
     const url = `${wsBaseUrl}/connection?uuid=${config.cluster_client_uuid}&version=${version}`;
 
     ws = new WebSocket(url, {
@@ -53,21 +56,25 @@ export function connectCluster(config: configType, msgHandler?: (ws: WebSocket, 
 
     ws.on('open', () => {
       console.log('[Cluster] Server connected');
-      ws!.send('ping');
       if (process.env.RENDER_EXTERNAL_URL) {
         ws.send(JSON.stringify({ type: 'keepalive_url', data: process.env.RENDER_EXTERNAL_URL + '/generate_200' }));
       }
+      timerInterval = setInterval(() => {
+        ws.send('ping');
+      }, 90_000);
     });
 
     ws.on('message', buf => {
       try {
         const msg = JSON.parse(buf.toString());
         msgHandler?.(ws, msg.type, msg.data);
-      } catch {}
+      } catch {
+        console.log('[Cluster] receive:', buf.toString());
+      }
     });
 
-    ws.on('close', () => {
-      console.log('[Cluster] Server closed');
+    ws.on('close', (code, reason) => {
+      console.log('[Cluster] Server closed', code, reason.toString());
 
       if (!closedByUser) {
         reconnect();
