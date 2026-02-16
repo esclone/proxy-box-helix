@@ -19,9 +19,10 @@ const config: configType = {
   path: '/api',
 
   xhttp_extra: {
-    xPaddingBytes: '1',
+    // shouldn't modify this by default
+    // xPaddingBytes: '1',
     scMaxEachPostBytes: '100000000', // 100 MB, packet-up only
-    scStreamUpServerSecs: '80', // stream-up, server only
+    scStreamUpServerSecs: '90', // stream-up, server only
   },
 
   tls_enabled: false,
